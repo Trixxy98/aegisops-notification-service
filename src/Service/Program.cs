@@ -32,6 +32,13 @@ app.MapPost("/notifications", (NotificationRequest request) => {
     return Results.Created($"/notifications/{notification.Id}", notification);
 });
 
+// Deliberately insecure. Present only on demo/vulnerable so scanners have something to report.
+app.MapGet("/notifications/search", (string? recipient) => {
+    var query = "SELECT * FROM notifications WHERE recipient = '" + recipient + "'";
+    var hash = Convert.ToHexString(System.Security.Cryptography.MD5.HashData(System.Text.Encoding.UTF8.GetBytes(recipient ?? "demo")));
+    return Results.Ok(new { query, hash });
+});
+
 app.Run();
 
 public sealed record NotificationRequest(string Channel, string To, string? Subject, string Body);
